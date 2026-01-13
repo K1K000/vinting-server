@@ -1,0 +1,24 @@
+[package]
+name = "vinting-server"
+version = "0.1.0"
+edition = "2024"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+complexity = { level = "warn", priority = -1 }
+perf = { level = "warn", priority = -1 }
+
+unwrap_used = "deny"
+needless_match = "deny"
+redundant_pattern = "deny"
+
+[dependencies]
+rocket = { version = "0.5.1", features = ["secrets"] }
+sea-orm = { version = "1.1.19", features = [
+  "runtime-tokio-rustls",
+  "sqlx-sqlite",
+] }
+tokio = { version = "1.49.0", features = ["full"] }
+serde = "1.0.228"
+anyhow = "1.0.100"
+thiserror = "2.0.17"

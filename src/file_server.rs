@@ -1,0 +1,25 @@
+use rocket::{
+    Build, Rocket, async_trait,
+    fairing::{self, Fairing, Info, Kind},
+    fs::{FileServer, relative},
+};
+use tokio::fs::try_exists;
+
+pub struct FileServerFairing;
+
+#[async_trait]
+impl Fairing for FileServerFairing {
+    fn info(&self) -> Info {
+        Info {
+            name: "Fairing for static files",
+            kind: Kind::Ignite,
+        }
+    }
+
+    async fn on_ignite(&self, r: Rocket<Build>) -> fairing::Result {
+        match try_exists("./web/").await.unwrap_or(false) {
+            true => Ok(r.mount("/", FileServer::from(relative!("/web")))),
+            false => Err(r),
+        }
+    }
+}
