@@ -3,6 +3,11 @@ name = "vinting-server"
 version = "0.1.0"
 edition = "2024"
 
+build = "./build.rs"
+
+[workspace]
+members = ["dtos", "entity"]
+
 [workspace.lints.clippy]
 pedantic = { level = "warn", priority = -1 }
 complexity = { level = "warn", priority = -1 }
@@ -12,13 +17,26 @@ unwrap_used = "deny"
 needless_match = "deny"
 redundant_pattern = "deny"
 
-[dependencies]
-rocket = { version = "0.5.1", features = ["secrets"] }
+[build-dependencies]
+cargo-build = "1.0.0"
+
+[workspace.dependencies]
 sea-orm = { version = "1.1.19", features = [
   "runtime-tokio-rustls",
   "sqlx-sqlite",
 ] }
-tokio = { version = "1.49.0", features = ["full"] }
-serde = "1.0.228"
 anyhow = "1.0.100"
-thiserror = "2.0.17"
+thiserror = "2.0.18"
+serde = "1.0.228"
+
+[dependencies]
+entity = { path = "./entity" }
+dtos = { path = "./dtos" }
+
+rocket = { version = "0.5.1", features = ["secrets"] }
+tokio = { version = "1.49.0", features = ["full"] }
+
+sea-orm = { workspace = true }
+serde = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }

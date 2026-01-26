@@ -1,5 +1,3 @@
-mod dto;
-mod entity;
 mod file_server;
 mod routes;
 
