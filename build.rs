@@ -23,7 +23,7 @@ fn main() {
     if !fs::exists("./vinting-web/node_modules/").unwrap_or(false) || rebuild {
         cargo_build::warning("Installing the web dependencies, this may take a while");
         // download deps
-        let mut i = Command::new("npm")
+        let mut i = Command::new(npm)
             .current_dir("./vinting-web/")
             .args(["install"])
             .spawn()
@@ -38,7 +38,7 @@ fn main() {
     // ~10s without this check as opposed with ~1.5s (on my machine) btw
     if !fs::exists("./web/").unwrap_or(false) || rebuild {
         // build the website
-        let mut c = Command::new("npm")
+        let mut c = Command::new(npm)
             .current_dir("./vinting-web/")
             .args(["run", "build"])
             .spawn()
