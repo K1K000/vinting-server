@@ -1,5 +1,4 @@
 // TODO:
-// post
 // user
 // tag
 // cetegory
@@ -8,9 +7,9 @@
 // order(/transaction, not sure which name is appropriate yet)
 //
 // M-N
-// post - tag
-// post - category
-// post - image
+// product - tag
+// product - category
+// product - image
 // product - order
 
 pub mod category;
