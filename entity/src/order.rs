@@ -2,7 +2,7 @@ use sea_orm::entity::prelude::*;
 
 #[sea_orm::model]
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
-#[sea_orm(table_name = "user")]
+#[sea_orm(table_name = "order")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
@@ -10,11 +10,10 @@ pub struct Model {
     pub modified_at: DateTime,
     pub deleted_at: Option<DateTime>,
 
-    pub name: String,
-    // TODO: use argon2
-    // see usage at https://docs.rs/argon2/latest/argon2/
-    pub password_hash: String,
-    // TODO: more fields?
+    #[sea_orm(has_many)]
+    pub product_orders: HasMany<super::product_order::Entity>,
+    #[sea_orm(has_many, via = "product_order")]
+    pub orders: HasMany<super::order::Entity>,
 }
 
 impl ActiveModelBehavior for ActiveModel {}

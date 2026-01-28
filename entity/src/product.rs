@@ -1,0 +1,34 @@
+use sea_orm::entity::prelude::*;
+
+#[sea_orm::model]
+#[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
+#[sea_orm(table_name = "product")]
+pub struct Model {
+    #[sea_orm(primary_key)]
+    pub id: i32,
+    pub created_at: DateTime,
+    pub modified_at: DateTime,
+    pub deleted_at: Option<DateTime>,
+
+    #[sea_orm(has_many)]
+    pub product_tags: HasMany<super::product_tag::Entity>,
+    #[sea_orm(has_many, via = "product_tag")]
+    pub tags: HasMany<super::tag::Entity>,
+
+    #[sea_orm(has_many)]
+    pub product_categories: HasMany<super::product_category::Entity>,
+    #[sea_orm(has_many, via = "product_category")]
+    pub categories: HasMany<super::category::Entity>,
+
+    #[sea_orm(has_many)]
+    pub product_images: HasMany<super::product_image::Entity>,
+    #[sea_orm(has_many, via = "product_image")]
+    pub images: HasMany<super::image::Entity>,
+
+    #[sea_orm(has_many)]
+    pub product_orders: HasMany<super::product_order::Entity>,
+    #[sea_orm(has_many, via = "product_order")]
+    pub order: HasMany<super::order::Entity>,
+}
+
+impl ActiveModelBehavior for ActiveModel {}
