@@ -15,6 +15,10 @@ pub struct Model {
     // see usage at https://docs.rs/argon2/latest/argon2/
     pub password_hash: String,
     // TODO: more fields?
+    //
+    //
+    #[sea_orm(has_many)]
+    pub products: HasMany<super::product::Entity>,
 }
 
 impl ActiveModelBehavior for ActiveModel {}

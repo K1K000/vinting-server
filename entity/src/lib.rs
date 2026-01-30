@@ -15,6 +15,7 @@
 pub mod category;
 pub mod image;
 pub mod order;
+pub mod prelude;
 pub mod product;
 pub mod product_category;
 pub mod product_image;
