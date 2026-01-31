@@ -1,4 +1,5 @@
 mod file_server;
+mod routable_file_server;
 mod routes;
 
 use crate::{file_server::FileServerFairing, routes::AllRouteFairing};
