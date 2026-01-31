@@ -16,4 +16,4 @@ jobs:
         with:
           submodules: true
       - name: Build
-        run: cargo build --verbose
+        run: cargo build --verbose --workspace
