@@ -1,0 +1,19 @@
+name: Run Rust tests
+
+on:
+  push:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout submodule
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Run tests
+        run: cargo test --verbose
