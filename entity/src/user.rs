@@ -6,11 +6,19 @@ use sea_orm::entity::prelude::*;
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
+    pub created_at: DateTime,
+    pub modified_at: DateTime,
+    pub deleted_at: Option<DateTime>,
+
     pub name: String,
     // TODO: use argon2
     // see usage at https://docs.rs/argon2/latest/argon2/
     pub password_hash: String,
     // TODO: more fields?
+    //
+    //
+    #[sea_orm(has_many)]
+    pub products: HasMany<super::product::Entity>,
 }
 
 impl ActiveModelBehavior for ActiveModel {}
