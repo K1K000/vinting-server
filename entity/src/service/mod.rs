@@ -11,10 +11,9 @@ use sea_orm::{
 ///  - `default_filters` (returns the filters the queries should run with by default)
 ///  - `get_backing_db` (returns the db the queries should be run with)
 #[async_trait]
-pub trait ServiceTrait<T>
-where
-    T: EntityTrait,
-{
+pub trait ServiceTrait {
+    type Entity: EntityTrait;
+
     fn default_filters() -> Condition;
     fn get_backing_db(&self) -> &DatabaseConnection;
 
@@ -22,21 +21,24 @@ where
 
     async fn exists_by_id<U>(&self, id: U) -> Result<bool, DbErr>
     where
-        U: Into<<T::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
     {
         self.exists_by_id_raw(id, Some(Self::default_filters()), |q| q)
             .await
     }
 
-    async fn get_by_id<U>(&self, id: U) -> Result<Option<T::Model>, DbErr>
+    async fn get_by_id<U>(
+        &self,
+        id: U,
+    ) -> Result<Option<<Self::Entity as EntityTrait>::Model>, DbErr>
     where
-        U: Into<<T::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
     {
         self.get_by_id_raw(id, Some(Self::default_filters()), |q| q)
             .await
     }
 
-    async fn get_all(&self) -> Result<Vec<T::Model>, DbErr> {
+    async fn get_all(&self) -> Result<Vec<<Self::Entity as EntityTrait>::Model>, DbErr> {
         self.get_all_raw(Some(Self::default_filters()), |q| q).await
     }
 
@@ -49,10 +51,10 @@ where
         with: F,
     ) -> Result<bool, DbErr>
     where
-        U: Into<<T::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
-        F: FnOnce(Select<T>) -> Select<T> + Send,
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
+        F: FnOnce(Select<Self::Entity>) -> Select<Self::Entity> + Send,
     {
-        let q = T::find_by_id(id);
+        let q = Self::Entity::find_by_id(id);
         let mut q = with(q);
 
         if let Some(filter) = filter {
@@ -66,12 +68,12 @@ where
         id: U,
         filter: Option<Condition>,
         with: F,
-    ) -> Result<Option<T::Model>, DbErr>
+    ) -> Result<Option<<Self::Entity as EntityTrait>::Model>, DbErr>
     where
-        U: Into<<T::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
-        F: FnOnce(Select<T>) -> Select<T> + Send,
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
+        F: FnOnce(Select<Self::Entity>) -> Select<Self::Entity> + Send,
     {
-        let q = T::find_by_id(id);
+        let q = Self::Entity::find_by_id(id);
         let mut q = with(q);
 
         if let Some(filter) = filter {
@@ -85,11 +87,11 @@ where
         &self,
         filter: Option<Condition>,
         with: F,
-    ) -> Result<Vec<T::Model>, DbErr>
+    ) -> Result<Vec<<Self::Entity as EntityTrait>::Model>, DbErr>
     where
-        F: FnOnce(Select<T>) -> Select<T> + Send,
+        F: FnOnce(Select<Self::Entity>) -> Select<Self::Entity> + Send,
     {
-        let q = T::find();
+        let q = Self::Entity::find();
         let mut q = with(q);
 
         if let Some(filter) = filter {
@@ -116,7 +118,9 @@ mod test {
     /// In real services use `&DatabaseConnection` instead of `DatabaseConnection` directly
     struct TestService(DatabaseConnection);
 
-    impl ServiceTrait<tag::Entity> for TestService {
+    impl ServiceTrait for TestService {
+        type Entity = tag::Entity;
+
         fn default_filters() -> Condition {
             Condition::all().add(tag::Column::DeletedAt.is_null())
         }
