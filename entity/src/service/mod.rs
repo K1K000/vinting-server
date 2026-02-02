@@ -1,36 +1,64 @@
 pub mod filter;
 
 use sea_orm::{
-    Condition, DatabaseConnection, DbErr, EntityTrait, PrimaryKeyTrait, QueryFilter, SelectExt,
-    prelude::async_trait::async_trait,
+    Condition, DatabaseConnection, DbErr, EntityTrait, PrimaryKeyTrait, QueryFilter, Select,
+    SelectExt, prelude::async_trait::async_trait,
 };
 
 /// trait for getting tables via service
+///
+/// the trait has an associate type: `Entity`, which has to implement `EntityTrait`
+/// (or in other words, it must be an entity)
 ///
 /// functions that should be provided:
 ///  - `default_filters` (returns the filters the queries should run with by default)
 ///  - `get_backing_db` (returns the db the queries should be run with)
 #[async_trait]
-pub trait ServiceTrait<T>
-where
-    T: EntityTrait,
-{
+pub trait ServiceTrait {
+    type Entity: EntityTrait;
+
     fn default_filters() -> Condition;
     fn get_backing_db(&self) -> &DatabaseConnection;
 
+    // general use functions
+
     async fn exists_by_id<U>(&self, id: U) -> Result<bool, DbErr>
     where
-        U: Into<<T::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
     {
-        self.exists_by_id_raw(id, Some(Self::default_filters()))
+        self.exists_by_id_raw(id, Some(Self::default_filters()), |q| q)
             .await
     }
 
-    async fn exists_by_id_raw<U>(&self, id: U, filter: Option<Condition>) -> Result<bool, DbErr>
+    async fn get_by_id<U>(
+        &self,
+        id: U,
+    ) -> Result<Option<<Self::Entity as EntityTrait>::Model>, DbErr>
     where
-        U: Into<<T::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
     {
-        let mut q = T::find_by_id(id);
+        self.get_by_id_raw(id, Some(Self::default_filters()), |q| q)
+            .await
+    }
+
+    async fn get_all(&self) -> Result<Vec<<Self::Entity as EntityTrait>::Model>, DbErr> {
+        self.get_all_raw(Some(Self::default_filters()), |q| q).await
+    }
+
+    // 'raw'/extended use functions
+
+    async fn exists_by_id_raw<U, F>(
+        &self,
+        id: U,
+        filter: Option<Condition>,
+        with: F,
+    ) -> Result<bool, DbErr>
+    where
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
+        F: FnOnce(Select<Self::Entity>) -> Select<Self::Entity> + Send,
+    {
+        let q = Self::Entity::find_by_id(id);
+        let mut q = with(q);
 
         if let Some(filter) = filter {
             q = q.filter(filter);
@@ -38,22 +66,18 @@ where
         q.exists(self.get_backing_db()).await
     }
 
-    async fn get_by_id<U>(&self, id: U) -> Result<Option<T::Model>, DbErr>
-    where
-        U: Into<<T::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
-    {
-        self.get_by_id_raw(id, Some(Self::default_filters())).await
-    }
-
-    async fn get_by_id_raw<U>(
+    async fn get_by_id_raw<U, F>(
         &self,
         id: U,
         filter: Option<Condition>,
-    ) -> Result<Option<T::Model>, DbErr>
+        with: F,
+    ) -> Result<Option<<Self::Entity as EntityTrait>::Model>, DbErr>
     where
-        U: Into<<T::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
+        F: FnOnce(Select<Self::Entity>) -> Select<Self::Entity> + Send,
     {
-        let mut q = T::find_by_id(id);
+        let q = Self::Entity::find_by_id(id);
+        let mut q = with(q);
 
         if let Some(filter) = filter {
             q = q.filter(filter);
@@ -62,11 +86,16 @@ where
         q.one(self.get_backing_db()).await
     }
 
-    async fn get_all(&self) -> Result<Vec<T::Model>, DbErr> {
-        self.get_all_raw(Some(Self::default_filters())).await
-    }
-    async fn get_all_raw(&self, filter: Option<Condition>) -> Result<Vec<T::Model>, DbErr> {
-        let mut q = T::find();
+    async fn get_all_raw<F>(
+        &self,
+        filter: Option<Condition>,
+        with: F,
+    ) -> Result<Vec<<Self::Entity as EntityTrait>::Model>, DbErr>
+    where
+        F: FnOnce(Select<Self::Entity>) -> Select<Self::Entity> + Send,
+    {
+        let q = Self::Entity::find();
+        let mut q = with(q);
 
         if let Some(filter) = filter {
             q = q.filter(filter);
@@ -78,6 +107,7 @@ where
 
 #[cfg(test)]
 mod test {
+    use sea_orm::QueryOrder;
     use sea_orm::{
         ActiveModelTrait, ActiveValue::Set, ColumnTrait, Condition, Database, DatabaseConnection,
         DbErr, sea_query::prelude::Utc,
@@ -91,7 +121,9 @@ mod test {
     /// In real services use `&DatabaseConnection` instead of `DatabaseConnection` directly
     struct TestService(DatabaseConnection);
 
-    impl ServiceTrait<tag::Entity> for TestService {
+    impl ServiceTrait for TestService {
+        type Entity = tag::Entity;
+
         fn default_filters() -> Condition {
             Condition::all().add(tag::Column::DeletedAt.is_null())
         }
@@ -122,7 +154,7 @@ mod test {
                 created_at: Set(now),
                 modified_at: Set(now),
                 deleted_at: Set(Some(now)),
-                name: Set("Test2".to_string()),
+                name: Set("Test3".to_string()),
             },
         ]
     }
@@ -172,9 +204,9 @@ mod test {
     async fn exists_raw() -> Result<(), DbErr> {
         let service = setup_service().await?;
 
-        assert!(service.exists_by_id_raw(1, None).await?);
-        assert!(service.exists_by_id_raw(3, None).await?);
-        assert!(service.exists_by_id_raw(5, None).await?.not());
+        assert!(service.exists_by_id_raw(1, None, |q| q).await?);
+        assert!(service.exists_by_id_raw(3, None, |q| q).await?);
+        assert!(service.exists_by_id_raw(5, None, |q| q).await?.not());
 
         Ok(())
     }
@@ -197,7 +229,7 @@ mod test {
     async fn get_by_id_raw() -> Result<(), DbErr> {
         let service = setup_service().await?;
 
-        let tag1 = service.get_by_id_raw(3, None).await?;
+        let tag1 = service.get_by_id_raw(3, None, |q| q).await?;
         assert!(tag1.is_some());
         let tag1 = tag1.expect("already asserted that it exists");
 
@@ -221,8 +253,23 @@ mod test {
     async fn get_all_raw() -> Result<(), DbErr> {
         let service = setup_service().await?;
 
-        let raw_all = service.get_all_raw(None).await?;
+        let raw_all = service.get_all_raw(None, |q| q).await?;
         assert!(raw_all.len() == 3);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn get_with_order() -> Result<(), DbErr> {
+        let service = setup_service().await?;
+
+        let raw_all = service
+            .get_all_raw(None, |q| q.order_by_desc(tag::Column::Name))
+            .await?;
+        assert!(raw_all.len() == 3);
+
+        let all_name = raw_all.into_iter().map(|t| t.name).collect::<Vec<_>>();
+        assert!(all_name == ["Test3", "Test2", "Test1",]);
 
         Ok(())
     }

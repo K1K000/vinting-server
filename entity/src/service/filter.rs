@@ -13,7 +13,7 @@ where
     #[must_use]
     fn service_filter<S>(self) -> Self
     where
-        S: ServiceTrait<T> + ?Sized,
+        S: ServiceTrait + ?Sized,
     {
         self.filter(S::default_filters())
     }

@@ -27,7 +27,10 @@ impl Fairing for FileServerFairing {
                     FileServer::new(relative!("/web"), Options::default() | Options::Missing),
                 )
                 .mount("/", routes![get_root_regardless])),
-            false => Err(r),
+            false => {
+                log::error!("The 'web' directory is not present, nothing to host");
+                Err(r)
+            }
         }
     }
 }
