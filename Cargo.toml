@@ -31,6 +31,7 @@ sea-orm = { version = "2.0.0-rc.30", features = [
 anyhow = "1.0.100"
 thiserror = "2.0.18"
 serde = "1.0.228"
+log = "0.4.29"
 
 [dependencies]
 entity = { path = "./entity" }
@@ -43,3 +44,4 @@ sea-orm = { workspace = true }
 serde = { workspace = true }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
+log = { workspace = true }

@@ -1,17 +1,3 @@
-// TODO:
-// user
-// tag
-// cetegory
-// image
-// product
-// order(/transaction, not sure which name is appropriate yet)
-//
-// M-N
-// product - tag
-// product - category
-// product - image
-// product - order
-
 pub mod prelude;
 
 pub mod category;

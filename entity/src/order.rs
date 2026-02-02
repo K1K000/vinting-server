@@ -13,7 +13,7 @@ pub struct Model {
     #[sea_orm(has_many)]
     pub product_orders: HasMany<super::product_order::Entity>,
     #[sea_orm(has_many, via = "product_order")]
-    pub orders: HasMany<super::order::Entity>,
+    pub products: HasMany<super::product::Entity>,
 }
 
 impl ActiveModelBehavior for ActiveModel {}

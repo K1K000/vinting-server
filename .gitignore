@@ -1,2 +1,6 @@
 /target
 /web
+
+# db files
+*.db
+*.sqlite

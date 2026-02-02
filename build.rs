@@ -20,8 +20,8 @@ fn main() {
     let npm = option_env!("NPM").unwrap_or("npm");
     let rebuild = option_env!("REBUILD").is_some();
 
-    let build_out = !fs::exists("./web/").unwrap_or(false) || rebuild;
-    let install_deps = !fs::exists("./vinting-web/node_modules/").unwrap_or(false) || rebuild;
+    let build_out = rebuild || !fs::exists("./web/").unwrap_or(false);
+    let install_deps = rebuild || !fs::exists("./vinting-web/node_modules/").unwrap_or(false);
 
     // check if npm is present in $PATH and is executable
     // spawning the process won't error if it's executable
@@ -31,7 +31,6 @@ fn main() {
     });
 
     if install_deps {
-        cargo_build::warning("Installing the web dependencies, this may take a while");
         // download deps
         let mut i = Command::new(npm)
             .current_dir("./vinting-web/")

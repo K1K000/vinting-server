@@ -7,6 +7,9 @@ use sea_orm::{
 
 /// trait for getting tables via service
 ///
+/// the trait has an associate type: `Entity`, which has to implement `EntityTrait`
+/// (or in other words, it must be an entity)
+///
 /// functions that should be provided:
 ///  - `default_filters` (returns the filters the queries should run with by default)
 ///  - `get_backing_db` (returns the db the queries should be run with)

@@ -1,0 +1,48 @@
+use rocket::{
+    Build, Rocket, async_trait,
+    fairing::{self, Fairing, Info, Kind},
+};
+use sea_orm::{
+    DatabaseConnection, SqlxError,
+    sqlx::{
+        SqlitePool,
+        sqlite::{SqliteConnectOptions, SqlitePoolOptions},
+    },
+};
+
+pub struct DatabaseFairing;
+
+#[async_trait]
+impl Fairing for DatabaseFairing {
+    fn info(&self) -> Info {
+        Info {
+            name: "Database Fairing",
+            kind: Kind::Ignite,
+        }
+    }
+
+    async fn on_ignite(&self, r: Rocket<Build>) -> fairing::Result {
+        match connect_db().await {
+            Err(err) => {
+                log::error!("Could not make a database connection: {err}");
+                Err(r)
+            }
+            Ok(conn) => {
+                let db = DatabaseConnection::from(conn);
+                if let Err(err) = db.get_schema_registry("entity::*").sync(&db).await {
+                    log::error!("{err}");
+                    return Err(r);
+                }
+                Ok(r.manage(db))
+            }
+        }
+    }
+}
+
+async fn connect_db() -> Result<SqlitePool, SqlxError> {
+    let opts = SqliteConnectOptions::new()
+        .filename("./vinting.db") // TODO: maybe change in the future?
+        .create_if_missing(true);
+
+    SqlitePoolOptions::new().connect_with(opts).await
+}

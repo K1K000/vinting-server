@@ -10,6 +10,7 @@ pub struct Model {
     pub modified_at: DateTime,
     pub deleted_at: Option<DateTime>,
 
+    #[sea_orm(unique)]
     pub name: String,
 
     #[sea_orm(has_many)]
