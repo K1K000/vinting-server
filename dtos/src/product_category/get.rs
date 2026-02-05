@@ -4,10 +4,8 @@ use serde::Serialize;
 
 #[derive(Debug, Serialize)]
 struct ProductCategoryGetDto {
-    pub id: i32,
     pub created_at: DateTime,
     pub modified_at: DateTime,
-    pub deleted_at: Option<DateTime>,
 
     pub product_id: i32,
     pub category_id: i32,
@@ -16,10 +14,8 @@ struct ProductCategoryGetDto {
 impl From<product_category::Model> for ProductCategoryGetDto {
     fn from(pc: product_category::Model) -> Self {
         Self {
-            id: pc.id,
             created_at: pc.created_at,
             modified_at: pc.modified_at,
-            deleted_at: pc.deleted_at,
 
             product_id: pc.product_id,
             category_id: pc.category_id,

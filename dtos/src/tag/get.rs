@@ -7,7 +7,6 @@ struct TagGetDto {
     pub id: i32,
     pub created_at: DateTime,
     pub modified_at: DateTime,
-    pub deleted_at: Option<DateTime>,
 
     pub name: String,
 }
@@ -18,7 +17,6 @@ impl From<tag::Model> for TagGetDto {
             id: t.id,
             created_at: t.created_at,
             modified_at: t.modified_at,
-            deleted_at: t.deleted_at,
             name: t.name,
         }
     }

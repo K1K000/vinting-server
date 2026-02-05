@@ -7,7 +7,6 @@ pub struct CategoryGetDto {
     pub id: i32,
     pub created_at: DateTime,
     pub modified_at: DateTime,
-    pub deleted_at: Option<DateTime>,
 
     pub name: String,
 }
@@ -18,7 +17,6 @@ impl From<category::Model> for CategoryGetDto {
             id: c.id,
             created_at: c.created_at,
             modified_at: c.modified_at,
-            deleted_at: c.deleted_at,
             name: c.name,
         }
     }

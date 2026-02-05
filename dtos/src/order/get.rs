@@ -7,7 +7,6 @@ struct OrderGetDto {
     pub id: i32,
     pub created_at: DateTime,
     pub modified_at: DateTime,
-    pub deleted_at: Option<DateTime>,
 
     pub user_id: i32,
 }
@@ -18,7 +17,6 @@ impl From<order::Model> for OrderGetDto {
             id: o.id,
             created_at: o.created_at,
             modified_at: o.modified_at,
-            deleted_at: o.deleted_at,
             user_id: o.user_id,
         }
     }

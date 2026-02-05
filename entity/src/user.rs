@@ -17,6 +17,8 @@ pub struct Model {
 
     #[sea_orm(has_many)]
     pub products: HasMany<super::product::Entity>,
+    #[sea_orm(has_many)]
+    pub orders: HasMany<super::order::Entity>,
 }
 
 impl ActiveModelBehavior for ActiveModel {}

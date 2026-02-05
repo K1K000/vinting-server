@@ -7,7 +7,6 @@ struct ImageGetDto {
     pub id: i32,
     pub created_at: DateTime,
     pub modified_at: DateTime,
-    pub deleted_at: Option<DateTime>,
 
     pub name: String,
     pub path: String,
@@ -19,7 +18,6 @@ impl From<image::Model> for ImageGetDto {
             id: image.id,
             created_at: image.created_at,
             modified_at: image.modified_at,
-            deleted_at: image.deleted_at,
             name: image.name,
             path: image.path,
         }
