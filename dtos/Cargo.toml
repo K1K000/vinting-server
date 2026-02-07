@@ -5,6 +5,9 @@ edition = "2024"
 
 [dependencies]
 serde = { workspace = true }
+sea-orm = { workspace = true }
+argon2 = { workspace = true }
+entity = { path = "../entity" }
 
 [lints]
 workspace = true

@@ -1,0 +1,23 @@
+use entity::user;
+use sea_orm::prelude::DateTime;
+use serde::Serialize;
+
+use crate::from_models;
+
+#[derive(Debug, Clone, Serialize)]
+pub struct UserGetDto {
+    pub id: i32,
+    pub created_at: DateTime,
+    pub modified_at: DateTime,
+
+    pub name: String,
+}
+
+from_models!(user, UserGetDto, m, {
+    Self {
+        id: m.id,
+        created_at: m.created_at,
+        modified_at: m.modified_at,
+        name: m.name,
+    }
+});

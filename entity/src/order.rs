@@ -8,7 +8,16 @@ pub struct Model {
     pub id: i32,
     pub created_at: DateTime,
     pub modified_at: DateTime,
+    #[sea_orm(indexed)]
     pub deleted_at: Option<DateTime>,
+
+    #[sea_orm(indexed)]
+    pub user_id: i32,
+    #[sea_orm(indexed)]
+    pub product_id: i32,
+
+    #[sea_orm(belongs_to, from = "user_id", to = "id")]
+    pub user: HasOne<super::user::Entity>,
 
     #[sea_orm(has_many)]
     pub product_orders: HasMany<super::product_order::Entity>,

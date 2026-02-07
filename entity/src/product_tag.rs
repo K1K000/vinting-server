@@ -6,12 +6,13 @@ use sea_orm::entity::prelude::*;
 pub struct Model {
     pub created_at: DateTime,
     pub modified_at: DateTime,
+    #[sea_orm(indexed)]
     pub deleted_at: Option<DateTime>,
 
     // composite key
-    #[sea_orm(primary_key)]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub product_id: i32,
-    #[sea_orm(primary_key)]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub tag_id: i32,
 
     #[sea_orm(belongs_to, from = "product_id", to = "id")]

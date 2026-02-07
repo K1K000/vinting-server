@@ -8,9 +8,9 @@ pub struct Model {
     pub id: i32,
     pub created_at: DateTime,
     pub modified_at: DateTime,
+    #[sea_orm(indexed)]
     pub deleted_at: Option<DateTime>,
 
-    pub name: String,
     // WARN: DO NOT ACCEPT THIS FROM THE USER
     // TODO: in the endpoint responsable for uploads:
     // generate random file name (probably using the file's hash) and put the image there

@@ -28,6 +28,7 @@ fn main() {
     // npm will exit with an error with these args, but we don't check that
     Command::new(npm).spawn().is_err().then(|| {
         cargo_build::error(&format!("'{npm}' is not in your $PATH"));
+        std::process::exit(1);
     });
 
     if install_deps {
