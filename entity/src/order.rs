@@ -10,6 +10,10 @@ pub struct Model {
     pub modified_at: DateTime,
     pub deleted_at: Option<DateTime>,
 
+    pub user_id: i32,
+    #[sea_orm(belongs_to, from = "user_id", to = "id")]
+    pub user: HasOne<super::user::Entity>,
+
     #[sea_orm(has_many)]
     pub product_orders: HasMany<super::product_order::Entity>,
     #[sea_orm(has_many, via = "product_order")]
