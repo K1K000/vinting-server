@@ -10,7 +10,6 @@ pub struct Model {
     pub modified_at: DateTime,
     pub deleted_at: Option<DateTime>,
 
-    pub name: String,
     // WARN: DO NOT ACCEPT THIS FROM THE USER
     // TODO: in the endpoint responsable for uploads:
     // generate random file name (probably using the file's hash) and put the image there

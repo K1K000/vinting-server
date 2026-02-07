@@ -1,20 +1,17 @@
 use entity::user;
-use sea_orm::sea_query::prelude::Utc;
 use serde::Deserialize;
 
-#[derive(Deserialize)]
-struct UserPostDto {
+#[derive(Debug, Clone, Deserialize)]
+pub struct UserPostDto {
     name: String,
-    password_hash: String,
+    password: String,
 }
 
 impl From<UserPostDto> for user::ActiveModelEx {
-    fn from(u: UserPostDto) -> Self {
-        user::ActiveModel::builder()
-            .set_deleted_at(None)
-            .set_created_at(Utc::now().naive_local())
-            .set_modified_at(Utc::now().naive_local())
-            .set_name(u.name)
-            .set_password_hash(u.password_hash)
+    // doesn't set password_hash
+    fn from(d: UserPostDto) -> Self {
+        user::ActiveModel::builder().set_name(d.name)
     }
 }
+
+crate::active_actions!(user::ActiveModelEx);

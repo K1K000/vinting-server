@@ -1,3 +1,3 @@
 pub mod get;
-pub mod post;
-pub mod put;
+
+// No post or put

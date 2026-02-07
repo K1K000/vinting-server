@@ -1,8 +1,10 @@
 use entity::category;
-use sea_orm::{prelude::*, sea_query::prelude::Utc};
+use sea_orm::prelude::*;
 use serde::Serialize;
 
-#[derive(Debug, Serialize)]
+use crate::from_models;
+
+#[derive(Debug, Clone, Serialize)]
 pub struct CategoryGetDto {
     pub id: i32,
     pub created_at: DateTime,
@@ -11,13 +13,11 @@ pub struct CategoryGetDto {
     pub name: String,
 }
 
-impl From<category::Model> for CategoryGetDto {
-    fn from(c: category::Model) -> Self {
-        CategoryGetDto {
-            id: c.id,
-            created_at: c.created_at,
-            modified_at: c.modified_at,
-            name: c.name,
-        }
+from_models!(category, CategoryGetDto, m, {
+    Self {
+        id: m.id,
+        created_at: m.created_at,
+        modified_at: m.modified_at,
+        name: m.name,
     }
-}
+});

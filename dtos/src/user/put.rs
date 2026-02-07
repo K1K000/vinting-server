@@ -1,7 +1,8 @@
 use serde::Deserialize;
 
-#[derive(Deserialize)]
-struct UserPutDto {
-    name: String,
-    password_hash: String,
+#[derive(Debug, Clone, Deserialize)]
+pub struct UserPutDto {
+    id: i32,
+    #[serde(flatten)]
+    data: super::post::UserPostDto,
 }

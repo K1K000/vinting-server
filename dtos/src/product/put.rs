@@ -1,10 +1,15 @@
+use entity::product;
 use serde::Deserialize;
 
-#[derive(Deserialize)]
-struct ProductPutDto {
+#[derive(Debug, Clone, Deserialize)]
+pub struct ProductPutDto {
     pub id: i32,
-    pub name: String,
-    pub description: String,
-    pub user_id: i32,
-    pub order_id: Option<i32>,
+    #[serde(flatten)]
+    pub data: super::post::ProductPostDto,
+}
+
+impl From<ProductPutDto> for product::ActiveModelEx {
+    fn from(d: ProductPutDto) -> Self {
+        product::ActiveModelEx::from(d.data).set_id(d.id)
+    }
 }

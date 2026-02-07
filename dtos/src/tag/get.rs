@@ -2,8 +2,10 @@ use entity::tag;
 use sea_orm::prelude::DateTime;
 use serde::Serialize;
 
-#[derive(Serialize)]
-struct TagGetDto {
+use crate::from_models;
+
+#[derive(Debug, Clone, Serialize)]
+pub struct TagGetDto {
     pub id: i32,
     pub created_at: DateTime,
     pub modified_at: DateTime,
@@ -11,13 +13,11 @@ struct TagGetDto {
     pub name: String,
 }
 
-impl From<tag::Model> for TagGetDto {
-    fn from(t: tag::Model) -> Self {
-        Self {
-            id: t.id,
-            created_at: t.created_at,
-            modified_at: t.modified_at,
-            name: t.name,
-        }
+from_models!(tag, TagGetDto, d, {
+    Self {
+        id: d.id,
+        created_at: d.created_at,
+        modified_at: d.modified_at,
+        name: d.name,
     }
-}
+});

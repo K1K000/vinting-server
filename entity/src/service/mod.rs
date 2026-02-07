@@ -12,6 +12,7 @@ use sea_orm::{
 ///
 /// functions that should be provided:
 ///  - `default_filters` (returns the filters the queries should run with by default)
+///  - `iter_filter` (ideally should be the same as `default_filters`, but for use with iterators)
 ///  - `get_backing_db` (returns the db the queries should be run with)
 #[async_trait]
 pub trait ServiceTrait {
@@ -19,6 +20,9 @@ pub trait ServiceTrait {
 
     fn default_filters() -> Condition;
     fn get_backing_db(&self) -> &DatabaseConnection;
+    fn iter_filter<M>(m: M) -> bool
+    where
+        M: Into<<Self::Entity as EntityTrait>::Model>;
 
     // general use functions
 
@@ -123,6 +127,15 @@ mod test {
 
     impl ServiceTrait for TestService {
         type Entity = tag::Entity;
+
+        fn iter_filter<M>(m: M) -> bool
+        where
+            M: Into<<Self::Entity as sea_orm::EntityTrait>::Model>,
+        {
+            let m = m.into() as <Self::Entity as sea_orm::EntityTrait>::Model;
+
+            m.deleted_at.is_none()
+        }
 
         fn default_filters() -> Condition {
             Condition::all().add(tag::Column::DeletedAt.is_null())

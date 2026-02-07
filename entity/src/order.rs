@@ -11,6 +11,8 @@ pub struct Model {
     pub deleted_at: Option<DateTime>,
 
     pub user_id: i32,
+    pub product_id: i32,
+
     #[sea_orm(belongs_to, from = "user_id", to = "id")]
     pub user: HasOne<super::user::Entity>,
 

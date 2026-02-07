@@ -13,10 +13,8 @@ pub struct Model {
     pub name: String,
     pub description: String,
 
-    pub order_id: Option<i32>,
-    #[sea_orm(belongs_to, from = "order_id", to = "id")]
-    pub order: HasOne<super::order::Entity>,
     pub user_id: i32,
+
     #[sea_orm(belongs_to, from = "user_id", to = "id")]
     pub user: HasOne<super::user::Entity>,
 

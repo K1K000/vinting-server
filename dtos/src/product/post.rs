@@ -1,24 +1,43 @@
-use entity::product;
-use sea_orm::sea_query::prelude::Utc;
+use entity::{category, image, product, tag};
 use serde::Deserialize;
 
-#[derive(Deserialize)]
-struct ProductPostDto {
+#[derive(Debug, Clone, Deserialize)]
+pub struct ProductPostDto {
     pub name: String,
     pub description: String,
-    pub user_id: i32,
-    pub order_id: Option<i32>,
+
+    /// List of category ids
+    pub categories: Vec<i32>,
+    /// List of image ids
+    pub images: Vec<i32>,
+    /// List of tag ids
+    pub tags: Vec<i32>,
 }
 
 impl From<ProductPostDto> for product::ActiveModelEx {
-    fn from(p: ProductPostDto) -> product::ActiveModelEx {
-        product::ActiveModel::builder()
-            .set_deleted_at(None)
-            .set_created_at(Utc::now().naive_local())
-            .set_modified_at(Utc::now().naive_local())
-            .set_name(p.name)
-            .set_description(p.description)
-            .set_user_id(p.user_id)
-            .set_order_id(p.order_id)
+    fn from(d: ProductPostDto) -> product::ActiveModelEx {
+        // user id is set outside of this function, because we get it from auth
+        let mut p = product::ActiveModel::builder()
+            .set_name(d.name)
+            .set_description(d.description);
+
+        // TODO: Test this
+        for c_id in d.categories {
+            p = p.add_category(category::ActiveModel::builder().set_id(c_id));
+        }
+
+        // TODO: Test this too
+        for i_id in d.images {
+            p = p.add_image(image::ActiveModel::builder().set_id(i_id));
+        }
+
+        // TODO: More tests
+        for t_id in d.tags {
+            p = p.add_tag(tag::ActiveModel::builder().set_id(t_id));
+        }
+
+        p
     }
 }
+
+crate::active_actions!(product::ActiveModelEx);
