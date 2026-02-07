@@ -8,11 +8,13 @@ pub struct Model {
     pub id: i32,
     pub created_at: DateTime,
     pub modified_at: DateTime,
+    #[sea_orm(indexed)]
     pub deleted_at: Option<DateTime>,
 
     pub name: String,
     pub description: String,
 
+    #[sea_orm(indexed)]
     pub user_id: i32,
 
     #[sea_orm(belongs_to, from = "user_id", to = "id")]

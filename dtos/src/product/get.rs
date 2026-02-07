@@ -43,6 +43,7 @@ impl From<product::ModelEx> for ProductGetDto {
 
             user: UserGetDto::from(user),
 
+            // TODO: filter using service `iter_filter`
             categories: m
                 .categories
                 .into_iter()
