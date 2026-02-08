@@ -7,19 +7,19 @@ use sea_orm::{
 
 /// trait for getting tables via service
 ///
-/// the trait has an associate type: `Entity`, which has to implement `EntityTrait`
-/// (or in other words, it must be an entity)
+/// the trait has an associate type:
+/// - `Entity`, which has to implement `EntityTrait` (or in other words, it must be an entity)
 ///
 /// functions that should be provided:
 ///  - `default_filters` (returns the filters the queries should run with by default)
 ///  - `iter_filter` (ideally should be the same as `default_filters`, but for use with iterators)
-///  - `get_backing_db` (returns the db the queries should be run with)
+///  - `get_db` (returns the db the queries should be run with)
 #[async_trait]
 pub trait ServiceTrait {
     type Entity: EntityTrait;
 
     fn default_filters() -> Condition;
-    fn get_backing_db(&self) -> &DatabaseConnection;
+    fn get_db(&self) -> &DatabaseConnection;
     fn iter_filter<M>(m: M) -> bool
     where
         M: Into<<Self::Entity as EntityTrait>::Model>;
@@ -67,7 +67,7 @@ pub trait ServiceTrait {
         if let Some(filter) = filter {
             q = q.filter(filter);
         }
-        q.exists(self.get_backing_db()).await
+        q.exists(self.get_db()).await
     }
 
     async fn get_by_id_raw<U, F>(
@@ -87,7 +87,7 @@ pub trait ServiceTrait {
             q = q.filter(filter);
         }
 
-        q.one(self.get_backing_db()).await
+        q.one(self.get_db()).await
     }
 
     async fn get_all_raw<F>(
@@ -105,7 +105,7 @@ pub trait ServiceTrait {
             q = q.filter(filter);
         }
 
-        q.all(self.get_backing_db()).await
+        q.all(self.get_db()).await
     }
 }
 
@@ -119,7 +119,8 @@ mod test {
     use std::ops::Not;
 
     use crate::service::ServiceTrait;
-    use crate::tag;
+    use crate::service::filter::ServiceFilter;
+    use crate::{product, tag};
 
     /// Uses tag as the test entity because it's small
     /// In real services use `&DatabaseConnection` instead of `DatabaseConnection` directly
@@ -132,7 +133,7 @@ mod test {
         where
             M: Into<<Self::Entity as sea_orm::EntityTrait>::Model>,
         {
-            let m = m.into() as <Self::Entity as sea_orm::EntityTrait>::Model;
+            let m = m.into() as tag::Model;
 
             m.deleted_at.is_none()
         }
@@ -140,7 +141,8 @@ mod test {
         fn default_filters() -> Condition {
             Condition::all().add(tag::Column::DeletedAt.is_null())
         }
-        fn get_backing_db(&self) -> &DatabaseConnection {
+
+        fn get_db(&self) -> &DatabaseConnection {
             &self.0
         }
     }
