@@ -21,6 +21,9 @@ pub struct Model {
     pub user: HasOne<super::user::Entity>,
 
     #[sea_orm(has_many)]
+    pub orders: HasMany<super::order::Entity>,
+
+    #[sea_orm(has_many)]
     pub product_tags: HasMany<super::product_tag::Entity>,
     #[sea_orm(has_many, via = "product_tag")]
     pub tags: HasMany<super::tag::Entity>,

@@ -16,13 +16,12 @@ pub struct Model {
     #[sea_orm(indexed)]
     pub product_id: i32,
 
+    pub arrived_at: Option<DateTime>,
+
     #[sea_orm(belongs_to, from = "user_id", to = "id")]
     pub user: HasOne<super::user::Entity>,
-
-    #[sea_orm(has_many)]
-    pub product_orders: HasMany<super::product_order::Entity>,
-    #[sea_orm(has_many, via = "product_order")]
-    pub products: HasMany<super::product::Entity>,
+    #[sea_orm(belongs_to, from = "product_id", to = "id")]
+    pub product: HasOne<super::product::Entity>,
 }
 
 impl ActiveModelBehavior for ActiveModel {}

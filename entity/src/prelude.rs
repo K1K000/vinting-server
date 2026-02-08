@@ -4,7 +4,6 @@ pub use super::order::Entity as Order;
 pub use super::product::Entity as Product;
 pub use super::product_category::Entity as ProductCategory;
 pub use super::product_image::Entity as ProductImage;
-pub use super::product_order::Entity as ProductOrder;
 pub use super::product_tag::Entity as ProductTag;
 pub use super::tag::Entity as Tag;
 pub use super::user::Entity as User;
