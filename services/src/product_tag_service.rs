@@ -1,22 +1,23 @@
-use entity::{product_image, service::ServiceTrait};
+use crate::service_trait::ServiceTrait;
+use entity::product_tag;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
 
-pub struct ProductImageService(DatabaseConnection);
+pub struct ProductTagService(DatabaseConnection);
 
-impl ServiceTrait for ProductImageService {
-    type Entity = product_image::Entity;
+impl ServiceTrait for ProductTagService {
+    type Entity = product_tag::Entity;
 
     fn iter_filter<M>(m: M) -> bool
     where
         M: Into<<Self::Entity as sea_orm::EntityTrait>::Model>,
     {
-        let m = m.into() as product_image::Model;
+        let m = m.into() as product_tag::Model;
 
         m.deleted_at.is_none()
     }
 
     fn default_filters() -> Condition {
-        Condition::all().add(product_image::Column::DeletedAt.is_null())
+        Condition::all().add(product_tag::Column::DeletedAt.is_null())
     }
 
     fn get_db(&self) -> &DatabaseConnection {

@@ -2,7 +2,6 @@ mod database;
 mod file_server;
 mod routable_file_server;
 mod routes;
-mod services;
 
 pub use entity; // for schema registry
 

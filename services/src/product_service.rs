@@ -1,4 +1,5 @@
-use entity::{product, service::ServiceTrait};
+use crate::service_trait::ServiceTrait;
+use entity::product;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
 
 pub struct ProductService(DatabaseConnection);

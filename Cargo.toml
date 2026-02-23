@@ -6,7 +6,7 @@ edition = "2024"
 build = "./build.rs"
 
 [workspace]
-members = ["dtos", "entity"]
+members = ["dtos", "entity", "services"]
 
 [workspace.lints.clippy]
 pedantic = { level = "warn", priority = -1 }
@@ -37,6 +37,7 @@ argon2 = "0.5.3"
 [dependencies]
 entity = { path = "./entity" }
 dtos = { path = "./dtos" }
+services = { path = "./services" }
 
 rocket = { version = "0.5.1", features = ["secrets"] }
 tokio = { version = "1.49.0", features = ["full"] }

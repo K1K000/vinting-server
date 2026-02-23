@@ -1,4 +1,5 @@
-use entity::{order, service::ServiceTrait};
+use crate::service_trait::ServiceTrait;
+use entity::order;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
 
 pub struct OrderService(DatabaseConnection);
