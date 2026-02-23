@@ -10,9 +10,6 @@ pub mod product_tag;
 pub mod tag;
 pub mod user;
 
-/// Anything to do with `ServiceTrait`
-pub mod service;
-
 #[cfg(test)]
 mod test {
     use sea_orm::{Database, DbErr};

@@ -118,9 +118,8 @@ mod test {
     };
     use std::ops::Not;
 
-    use crate::service::ServiceTrait;
-    use crate::service::filter::ServiceFilter;
-    use crate::{product, tag};
+    use super::ServiceTrait;
+    use entity::tag;
 
     /// Uses tag as the test entity because it's small
     /// In real services use `&DatabaseConnection` instead of `DatabaseConnection` directly

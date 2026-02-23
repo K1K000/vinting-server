@@ -1,0 +1,15 @@
+[package]
+name = "services"
+version = "0.1.0"
+edition = "2024"
+
+[lints]
+workspace = true
+
+[dependencies]
+entity = { path = "../entity" }
+sea-orm = { workspace = true }
+
+[dev-dependencies]
+tokio = { version = "1.49.0", features = ["test-util", "macros"] }
+sea-orm = { workspace = true, features = ["mock"] }

@@ -1,6 +1,10 @@
 use entity::product;
 use sea_orm::prelude::DateTime;
 use serde::Serialize;
+use services::{
+    category_service::CategoryService, image_service::ImageService, service_trait::ServiceTrait,
+    tag_service::TagService,
+};
 
 use crate::{
     category::get::CategoryGetDto, image::get::ImageGetDto, tag::get::TagGetDto,
@@ -43,18 +47,24 @@ impl From<product::ModelEx> for ProductGetDto {
 
             user: UserGetDto::from(user),
 
-            // TODO: filter using service `iter_filter`
             categories: m
                 .categories
                 .into_iter()
+                .filter(|m| CategoryService::iter_filter(m.clone()))
                 .map(CategoryGetDto::from)
                 .collect::<Vec<_>>(),
             images: m
                 .images
                 .into_iter()
+                .filter(|m| ImageService::iter_filter(m.clone()))
                 .map(ImageGetDto::from)
                 .collect::<Vec<_>>(),
-            tags: m.tags.into_iter().map(TagGetDto::from).collect::<Vec<_>>(),
+            tags: m
+                .tags
+                .into_iter()
+                .filter(|m| TagService::iter_filter(m.clone()))
+                .map(TagGetDto::from)
+                .collect::<Vec<_>>(),
         }
     }
 }
