@@ -1,0 +1,25 @@
+use entity::{order, service::ServiceTrait};
+use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
+
+pub struct OrderService(DatabaseConnection);
+
+impl ServiceTrait for OrderService {
+    type Entity = order::Entity;
+
+    fn iter_filter<M>(m: M) -> bool
+    where
+        M: Into<<Self::Entity as sea_orm::EntityTrait>::Model>,
+    {
+        let m = m.into() as order::Model;
+
+        m.deleted_at.is_none()
+    }
+
+    fn default_filters() -> Condition {
+        Condition::all().add(order::Column::DeletedAt.is_null())
+    }
+
+    fn get_db(&self) -> &DatabaseConnection {
+        &self.0
+    }
+}
