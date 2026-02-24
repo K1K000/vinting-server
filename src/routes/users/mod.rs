@@ -1,25 +1,25 @@
-pub mod users;
+pub mod jwt;
+pub mod post;
 
 use rocket::{
     Build, Rocket, async_trait,
     fairing::{self, Fairing, Info, Kind},
+    routes,
 };
 
-use crate::routes::users::UsersFairing;
-
-pub struct AllRouteFairing;
+pub struct UsersFairing;
 
 #[async_trait]
-impl Fairing for AllRouteFairing {
+impl Fairing for UsersFairing {
     fn info(&self) -> Info {
         Info {
-            name: "All route fairing",
+            name: "Users route fairing",
             kind: Kind::Ignite,
         }
     }
 
     async fn on_ignite(&self, r: Rocket<Build>) -> fairing::Result {
-        let r = r.attach(UsersFairing);
+        let r = r.mount("/api/users", routes![post::signup, post::login]);
 
         Ok(r)
     }

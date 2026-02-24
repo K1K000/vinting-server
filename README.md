@@ -24,6 +24,30 @@ Features:
 git clone https://github.com/SpawnCycle/vinting-server.git --recursive
 ```
 
+## Building the app
+
+```sh
+cargo build
+```
+
+Or if you want to build it in release mode
+
+```sh
+cargo build --release
+```
+
+Or if you want to build with a different npm compatible package manager (eg. bun)
+
+```sh
+NPM=bun cargo build
+```
+
+Or if you want to rebuild the client webapp
+
+```sh
+REBUILD=1 cargo build
+```
+
 ## Running the app
 
 ```sh
@@ -34,6 +58,12 @@ Or if you want to run it in release mode
 
 ```sh
 cargo run --release
+```
+
+Or if you want to run with a different npm compatible package manager (eg. bun)
+
+```sh
+NPM=bun cargo run
 ```
 
 ## Development

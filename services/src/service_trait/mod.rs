@@ -1,4 +1,6 @@
-pub mod filter;
+mod filter;
+
+pub use filter::*;
 
 use sea_orm::{
     Condition, DatabaseConnection, DbErr, EntityTrait, PrimaryKeyTrait, QueryFilter, Select,

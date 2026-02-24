@@ -1,3 +1,7 @@
+// utility stuff for serde
+pub mod email_string;
+pub mod limited_string;
+
 // TODO: remove the allow(unused)
 
 #[allow(unused)]

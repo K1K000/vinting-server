@@ -3,7 +3,7 @@ use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct TagPostDto {
-    name: String,
+    pub name: String,
 }
 
 impl From<TagPostDto> for tag::ActiveModelEx {

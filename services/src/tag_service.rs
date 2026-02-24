@@ -2,9 +2,9 @@ use crate::service_trait::ServiceTrait;
 use entity::tag;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
 
-pub struct TagService(DatabaseConnection);
+pub struct TagService<'a>(&'a DatabaseConnection);
 
-impl ServiceTrait for TagService {
+impl ServiceTrait for TagService<'_> {
     type Entity = tag::Entity;
 
     fn iter_filter<M>(m: M) -> bool
@@ -21,6 +21,6 @@ impl ServiceTrait for TagService {
     }
 
     fn get_db(&self) -> &DatabaseConnection {
-        &self.0
+        self.0
     }
 }

@@ -12,6 +12,8 @@ pub struct Model {
     pub deleted_at: Option<DateTime>,
 
     pub name: String,
+    #[sea_orm(unique)]
+    pub email: String,
     // TODO: use argon2
     // see usage at https://docs.rs/argon2/latest/argon2/
     pub password_hash: String,

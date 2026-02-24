@@ -2,9 +2,9 @@ use crate::service_trait::ServiceTrait;
 use entity::category;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
 
-pub struct CategoryService(DatabaseConnection);
+pub struct CategoryService<'a>(&'a DatabaseConnection);
 
-impl ServiceTrait for CategoryService {
+impl ServiceTrait for CategoryService<'_> {
     type Entity = category::Entity;
 
     fn iter_filter<M>(m: M) -> bool

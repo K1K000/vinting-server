@@ -2,9 +2,9 @@ use crate::service_trait::ServiceTrait;
 use entity::image;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
 
-pub struct ImageService(DatabaseConnection);
+pub struct ImageService<'a>(&'a DatabaseConnection);
 
-impl ServiceTrait for ImageService {
+impl ServiceTrait for ImageService<'_> {
     type Entity = image::Entity;
 
     fn iter_filter<M>(m: M) -> bool
@@ -21,6 +21,6 @@ impl ServiceTrait for ImageService {
     }
 
     fn get_db(&self) -> &DatabaseConnection {
-        &self.0
+        self.0
     }
 }

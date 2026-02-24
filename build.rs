@@ -1,4 +1,8 @@
-use std::{fs, ops::Not, process::Command};
+use std::{
+    fs,
+    ops::Not,
+    process::{self, Command},
+};
 
 fn main() {
     // probably not needed in the newer rust versions
@@ -7,14 +11,13 @@ fn main() {
     cargo_build::rerun_if_changed("./.git/HEAD");
     // rerun if we're on a different submodule commit
     cargo_build::rerun_if_changed("./.git/modules/vinting-web/HEAD");
-    // this will run the build script if the directory is not present
-    cargo_build::rerun_if_changed("./web/");
 
     // npm gives a rather cryptic error if this happens
     if !fs::exists("./vinting-web/package.json").unwrap_or(false) {
         cargo_build::error(
             "Git repo cloned without submodules, please clone the repo with the --recursive flag",
         );
+        process::exit(1);
     }
 
     let npm = option_env!("NPM").unwrap_or("npm");
@@ -28,7 +31,7 @@ fn main() {
     // npm will exit with an error with these args, but we don't check that
     Command::new(npm).spawn().is_err().then(|| {
         cargo_build::error(&format!("'{npm}' is not in your $PATH"));
-        std::process::exit(1);
+        process::exit(1);
     });
 
     if install_deps {

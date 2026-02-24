@@ -2,9 +2,9 @@ use crate::service_trait::ServiceTrait;
 use entity::product_category;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
 
-pub struct ProductCategoryService(DatabaseConnection);
+pub struct ProductCategoryService<'a>(&'a DatabaseConnection);
 
-impl ServiceTrait for ProductCategoryService {
+impl ServiceTrait for ProductCategoryService<'_> {
     type Entity = product_category::Entity;
 
     fn iter_filter<M>(m: M) -> bool
@@ -21,6 +21,6 @@ impl ServiceTrait for ProductCategoryService {
     }
 
     fn get_db(&self) -> &DatabaseConnection {
-        &self.0
+        self.0
     }
 }

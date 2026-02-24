@@ -2,9 +2,9 @@ use crate::service_trait::ServiceTrait;
 use entity::order;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
 
-pub struct OrderService(DatabaseConnection);
+pub struct OrderService<'a>(&'a DatabaseConnection);
 
-impl ServiceTrait for OrderService {
+impl ServiceTrait for OrderService<'_> {
     type Entity = order::Entity;
 
     fn iter_filter<M>(m: M) -> bool
@@ -21,6 +21,6 @@ impl ServiceTrait for OrderService {
     }
 
     fn get_db(&self) -> &DatabaseConnection {
-        &self.0
+        self.0
     }
 }
