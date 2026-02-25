@@ -1,22 +1,26 @@
-use argon2::Argon2;
-use argon2::PasswordVerifier;
-use dtos::user::{get::UserGetDto, post::UserPostDto};
+use argon2::{Argon2, PasswordVerifier};
+use dtos::{
+    active_action::ActiveAction,
+    user::{get::UserGetDto, post::UserPostDto},
+};
 use entity::prelude::*;
 use entity::user;
-use rocket::FromForm;
-use rocket::form::Form;
-use rocket::http::CookieJar;
-use rocket::response::status::NoContent;
-use rocket::{State, http::uri::Host, post, response::status::Created, serde::json::Json};
-use sea_orm::DbConn;
-use sea_orm::SelectExt;
-use services::service_trait::ServiceFilter;
-use services::user_service::UserService;
+use rocket::{
+    FromForm, State,
+    form::Form,
+    http::{Cookie, CookieJar, uri::Host},
+    post,
+    response::status::{Created, NoContent},
+    serde::json::Json,
+};
+use sea_orm::{DbConn, SelectExt};
+use services::{service_trait::ServiceFilter, user_service::UserService};
 
-use crate::responder::Responder;
-use crate::routes::users::jwt::JWT_KEY;
-use crate::routes::users::jwt::JWT_STR;
-use crate::routes::users::jwt::make_jwt;
+use crate::{
+    constants::{JWT_KEY, JWT_STR},
+    responder::Responder,
+    routes::users::jwt::make_jwt,
+};
 
 #[derive(Debug, Clone, FromForm)]
 pub struct LoginDetails<'a> {
@@ -44,7 +48,7 @@ pub async fn signup(
         ));
     }
 
-    let am = user::ActiveModelEx::from(user);
+    let am = user::ActiveModelEx::from(user).creating();
     let user = am.insert(db).await?;
 
     add_jwt_to_jar(user.id, jar)?;
@@ -86,7 +90,11 @@ fn add_jwt_to_jar(uid: i32, jar: &CookieJar<'_>) -> Result<(), jsonwebtoken::err
     // TODO: key
     let jwt = make_jwt(uid, JWT_KEY.to_string())?;
 
-    jar.add((JWT_STR, jwt));
+    log::info!("JWT: {jwt}");
+
+    let cookie = Cookie::build((JWT_STR, jwt)).http_only(true);
+
+    jar.add(cookie);
 
     Ok(())
 }

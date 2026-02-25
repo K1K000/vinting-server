@@ -2,7 +2,7 @@ use crate::service_trait::ServiceTrait;
 use entity::user;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
 
-pub struct UserService<'a>(&'a DatabaseConnection);
+pub struct UserService<'a>(pub &'a DatabaseConnection);
 
 impl ServiceTrait for UserService<'_> {
     type Entity = user::Entity;

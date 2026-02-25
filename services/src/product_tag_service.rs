@@ -2,7 +2,7 @@ use crate::service_trait::ServiceTrait;
 use entity::product_tag;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
 
-pub struct ProductTagService<'a>(&'a DatabaseConnection);
+pub struct ProductTagService<'a>(pub &'a DatabaseConnection);
 
 impl ServiceTrait for ProductTagService<'_> {
     type Entity = product_tag::Entity;

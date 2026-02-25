@@ -2,7 +2,7 @@ use crate::service_trait::ServiceTrait;
 use entity::category;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
 
-pub struct CategoryService<'a>(&'a DatabaseConnection);
+pub struct CategoryService<'a>(pub &'a DatabaseConnection);
 
 impl ServiceTrait for CategoryService<'_> {
     type Entity = category::Entity;
@@ -21,6 +21,6 @@ impl ServiceTrait for CategoryService<'_> {
     }
 
     fn get_db(&self) -> &DatabaseConnection {
-        &self.0
+        self.0
     }
 }

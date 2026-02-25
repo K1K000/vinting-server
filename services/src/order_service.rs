@@ -2,7 +2,7 @@ use crate::service_trait::ServiceTrait;
 use entity::order;
 use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
 
-pub struct OrderService<'a>(&'a DatabaseConnection);
+pub struct OrderService<'a>(pub &'a DatabaseConnection);
 
 impl ServiceTrait for OrderService<'_> {
     type Entity = order::Entity;
