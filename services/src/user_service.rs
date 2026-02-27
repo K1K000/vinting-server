@@ -8,7 +8,7 @@ pub struct UserService<'a>(pub &'a DatabaseConnection);
 
 impl UserService<'_> {
     /// # Errors
-    ///     - `DbErr`
+    /// Returns the error produced by sea-orm
     pub async fn get_by_email<S>(&self, email: S) -> Result<Option<user::Model>, DbErr>
     where
         S: Into<String>,
@@ -21,7 +21,7 @@ impl UserService<'_> {
     }
 
     /// # Errors
-    ///     - `DbErr`
+    /// Returns the error produced by sea-orm
     pub async fn exists_by_email<S>(&self, email: S) -> Result<bool, DbErr>
     where
         S: Into<String>,
