@@ -12,6 +12,10 @@ fn main() {
     // rerun if we're on a different submodule commit
     cargo_build::rerun_if_changed("./.git/modules/vinting-web/HEAD");
 
+    if option_env!("NO_WEB").is_some() {
+        return;
+    }
+
     // npm gives a rather cryptic error if this happens
     if !fs::exists("./vinting-web/package.json").unwrap_or(false) {
         cargo_build::error(

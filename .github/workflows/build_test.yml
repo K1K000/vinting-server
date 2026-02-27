@@ -30,3 +30,25 @@ jobs:
           submodules: true
       - name: Run tests
         run: cargo test --verbose --workspace
+  build-no-web:
+    runs-on: ubuntu-latest
+    env:
+      NO_WEB: 1
+    steps:
+      - name: Checkout submodule
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Build project
+        run: cargo build --verbose --workspace
+  test-no-web:
+    runs-on: ubuntu-latest
+    env:
+      NO_WEB: 1
+    steps:
+      - name: Checkout submodule
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Run tests
+        run: cargo test --verbose --workspace
