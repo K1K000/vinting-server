@@ -1,10 +1,5 @@
 use argon2::{Argon2, PasswordVerifier};
-use dtos::{
-    active_action::ActiveAction,
-    user::{get::UserGetDto, post::UserPostDto},
-};
-use entity::prelude::*;
-use entity::user;
+use dtos::user::{get::UserGetDto, post::UserPostDto};
 use rocket::{
     FromForm, State,
     form::Form,
@@ -13,8 +8,8 @@ use rocket::{
     response::status::{Created, NoContent},
     serde::json::Json,
 };
-use sea_orm::{DbConn, SelectExt};
-use services::{service_trait::ServiceFilter, user_service::UserService};
+use sea_orm::DbConn;
+use services::{service_trait::ServiceTrait, user_service::UserService};
 
 use crate::{
     constants::{JWT_KEY, JWT_STR},
@@ -37,19 +32,15 @@ pub async fn signup(
 ) -> Result<Created<Json<UserGetDto>>, Responder> {
     let db = db.inner();
     let user = data.into_inner();
+    let service = UserService(db);
 
-    if User::find_by_email(user.email.clone())
-        .service_filter::<UserService>()
-        .exists(db)
-        .await?
-    {
+    if service.exists_by_email(user.email.clone()).await? {
         return Err(Responder::bad_request(
             "A user with that email already exists",
         ));
     }
 
-    let am = user::ActiveModelEx::from(user).creating();
-    let user = am.insert(db).await?;
+    let user = service.insert(user).await?;
 
     add_jwt_to_jar(user.id, jar)?;
 
@@ -63,10 +54,10 @@ pub async fn login(
     jar: &CookieJar<'_>,
 ) -> Result<NoContent, Responder> {
     let db = db.inner();
+    let service = UserService(db);
 
-    let user = User::find_by_email(data.email)
-        .service_filter::<UserService>()
-        .one(db)
+    let user = service
+        .get_by_email(data.email)
         .await?
         .ok_or(Responder::not_found(
             "There is no user with the given email",

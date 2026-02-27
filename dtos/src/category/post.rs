@@ -11,5 +11,3 @@ impl From<CategoryPostDto> for category::ActiveModelEx {
         category::ActiveModel::builder().set_name(c.name)
     }
 }
-
-crate::active_actions!(category::ActiveModelEx);
