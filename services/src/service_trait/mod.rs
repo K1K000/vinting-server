@@ -4,8 +4,8 @@ use entity::active_action::ActiveAction;
 pub use filter::*;
 
 use sea_orm::{
-    Condition, DatabaseConnection, DbConn, DbErr, EntityTrait, PrimaryKeyTrait, QueryFilter,
-    Select, SelectExt, prelude::async_trait::async_trait,
+    ActiveModelTrait, Condition, DatabaseConnection, DbConn, DbErr, EntityTrait, PrimaryKeyTrait,
+    QueryFilter, Select, SelectExt, prelude::async_trait::async_trait,
 };
 
 /// trait for getting tables via service
@@ -17,8 +17,9 @@ use sea_orm::{
 ///  - `default_filters` (returns the filters the queries should run with by default)
 ///  - `iter_filter` (ideally should be the same as `default_filters`, but for use with iterators)
 ///  - `get_db` (returns the db the queries should be run with)
-///  - `insert_active_model_ex` (exposes the new `ActiveModelEx`'s insert function)
-///  - `update_active_model_ex` (exposes the new `ActiveModelEx`'s update function)
+///  - `new_active_model_ex_from_id` (should create a new `ActiveModelEx` from an id)
+///  - `insert_active_model_ex` (should expose the new `ActiveModelEx`'s insert function)
+///  - `update_active_model_ex` (shoudl expose the new `ActiveModelEx`'s update function)
 #[async_trait]
 pub trait ServiceTrait {
     type Entity: EntityTrait;
@@ -28,6 +29,10 @@ pub trait ServiceTrait {
     fn iter_filter<M>(m: M) -> bool
     where
         M: Into<<Self::Entity as EntityTrait>::Model>;
+
+    fn new_active_model_ex_from_id<U>(id: U) -> <Self::Entity as EntityTrait>::ActiveModelEx
+    where
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType>;
 
     fn insert_active_model_ex(
         am: <Self::Entity as EntityTrait>::ActiveModelEx,
@@ -41,6 +46,7 @@ pub trait ServiceTrait {
 
     // general use functions
 
+    /// returns true if the db contains a row with the given id
     async fn exists_by_id<U>(&self, id: U) -> Result<bool, DbErr>
     where
         U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
@@ -49,6 +55,8 @@ pub trait ServiceTrait {
             .await
     }
 
+    /// returns the row with the given id from the table `Self::Entity` works with as `Some(Model)` if it exists,
+    /// otherwise returns `None`
     async fn get_by_id<U>(
         &self,
         id: U,
@@ -60,10 +68,31 @@ pub trait ServiceTrait {
             .await
     }
 
+    /// returns all of the rows from the table that `Self::Entity` works with
     async fn get_all(&self) -> Result<Vec<<Self::Entity as EntityTrait>::Model>, DbErr> {
         self.get_all_raw(Some(Self::default_filters()), |q| q).await
     }
 
+    // mutating db functions
+
+    /// Soft deletes a row with the help of `ActiveAction`
+    /// effectively just updating the `deleted_at` and `modified_at` field
+    async fn delete_by_id<U>(&self, id: U) -> Result<<Self::Entity as EntityTrait>::ModelEx, DbErr>
+    where
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType> + Send,
+        <Self::Entity as EntityTrait>::ActiveModelEx: ActiveAction + ActiveModelTrait,
+    {
+        Self::update_active_model_ex(
+            Self::new_active_model_ex_from_id(id).deleting(),
+            self.get_db(),
+        )
+        .await
+    }
+
+    /// Inserts a row into the db with the help of `ActiveAction`
+    /// properly setting the `created_at` and `modified_at` field
+    /// You dont have to pass in an active model, but only a type that implements
+    /// `Into<ActiveModelEx>`
     async fn insert<M>(
         &self,
         active_model: M,
@@ -77,6 +106,10 @@ pub trait ServiceTrait {
         Self::insert_active_model_ex(am.creating(), self.get_db()).await
     }
 
+    /// Updates a row into the db with the help of `ActiveAction`
+    /// properly setting the `modified_at` field
+    /// You dont have to pass in an active model, but only a type that implements
+    /// `Into<ActiveModelEx>`
     async fn update<M>(
         &self,
         active_model: M,
@@ -156,7 +189,7 @@ mod test {
         ActiveModelTrait, ActiveValue::Set, ColumnTrait, Condition, Database, DatabaseConnection,
         DbErr, sea_query::prelude::Utc,
     };
-    use sea_orm::{DbConn, EntityTrait, QueryOrder};
+    use sea_orm::{DbConn, EntityTrait, PrimaryKeyTrait, QueryOrder};
     use std::ops::Not;
 
     use super::ServiceTrait;
@@ -184,6 +217,13 @@ mod test {
 
         fn get_db(&self) -> &DatabaseConnection {
             &self.0
+        }
+
+        fn new_active_model_ex_from_id<U>(id: U) -> <Self::Entity as EntityTrait>::ActiveModelEx
+        where
+            U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType>,
+        {
+            tag::ActiveModel::builder().set_id(id)
         }
 
         fn insert_active_model_ex(

@@ -1,6 +1,8 @@
 use crate::service_trait::ServiceTrait;
 use entity::image;
-use sea_orm::{ColumnTrait, Condition, DatabaseConnection, DbConn, DbErr, EntityTrait};
+use sea_orm::{
+    ColumnTrait, Condition, DatabaseConnection, DbConn, DbErr, EntityTrait, PrimaryKeyTrait,
+};
 
 pub struct ImageService<'a>(pub &'a DatabaseConnection);
 
@@ -22,6 +24,13 @@ impl ServiceTrait for ImageService<'_> {
 
     fn get_db(&self) -> &DatabaseConnection {
         self.0
+    }
+
+    fn new_active_model_ex_from_id<U>(id: U) -> <Self::Entity as EntityTrait>::ActiveModelEx
+    where
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType>,
+    {
+        image::ActiveModel::builder().set_id(id)
     }
 
     fn insert_active_model_ex(

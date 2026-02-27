@@ -16,6 +16,8 @@ pub mod active_action {
         fn creating(self) -> Self;
         #[must_use]
         fn modifying(self) -> Self;
+        #[must_use]
+        fn deleting(self) -> Self;
     }
 
     #[macro_export]
@@ -29,6 +31,10 @@ pub mod active_action {
                 fn modifying(self) -> Self {
                     let now = sea_orm::sea_query::prelude::Utc::now().naive_local();
                     self.set_modified_at(now)
+                }
+                fn deleting(self) -> Self {
+                    let now = sea_orm::sea_query::prelude::Utc::now().naive_local();
+                    self.modifying().set_modified_at(now)
                 }
             }
         };

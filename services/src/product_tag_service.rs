@@ -1,6 +1,8 @@
 use crate::service_trait::ServiceTrait;
 use entity::product_tag;
-use sea_orm::{ColumnTrait, Condition, DatabaseConnection, DbConn, DbErr, EntityTrait};
+use sea_orm::{
+    ColumnTrait, Condition, DatabaseConnection, DbConn, DbErr, EntityTrait, PrimaryKeyTrait,
+};
 
 pub struct ProductTagService<'a>(pub &'a DatabaseConnection);
 
@@ -22,6 +24,16 @@ impl ServiceTrait for ProductTagService<'_> {
 
     fn get_db(&self) -> &DatabaseConnection {
         self.0
+    }
+
+    fn new_active_model_ex_from_id<U>(id: U) -> <Self::Entity as EntityTrait>::ActiveModelEx
+    where
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType>,
+    {
+        let (pid, tid) = id.into();
+        product_tag::ActiveModel::builder()
+            .set_product_id(pid)
+            .set_tag_id(tid)
     }
 
     fn insert_active_model_ex(

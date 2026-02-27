@@ -1,7 +1,8 @@
 use crate::service_trait::ServiceTrait;
 use entity::user;
 use sea_orm::{
-    ColumnTrait, Condition, DatabaseConnection, DbConn, DbErr, EntityTrait, QueryFilter, SelectExt,
+    ColumnTrait, Condition, DatabaseConnection, DbConn, DbErr, EntityTrait, PrimaryKeyTrait,
+    QueryFilter, SelectExt,
 };
 
 pub struct UserService<'a>(pub &'a DatabaseConnection);
@@ -52,6 +53,13 @@ impl ServiceTrait for UserService<'_> {
 
     fn get_db(&self) -> &DatabaseConnection {
         self.0
+    }
+
+    fn new_active_model_ex_from_id<U>(id: U) -> <Self::Entity as EntityTrait>::ActiveModelEx
+    where
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType>,
+    {
+        user::ActiveModel::builder().set_id(id)
     }
 
     fn insert_active_model_ex(
