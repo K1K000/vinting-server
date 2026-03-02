@@ -12,7 +12,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  build-with-web:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout submodule
@@ -21,16 +21,7 @@ jobs:
           submodules: true
       - name: Build project
         run: cargo build --verbose --workspace
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout submodule
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-      - name: Run tests
-        run: cargo test --verbose --workspace
-  build-no-web:
+  build:
     runs-on: ubuntu-latest
     env:
       NO_WEB: 1
@@ -41,7 +32,7 @@ jobs:
           submodules: true
       - name: Build project
         run: cargo build --verbose --workspace
-  test-no-web:
+  test:
     runs-on: ubuntu-latest
     env:
       NO_WEB: 1

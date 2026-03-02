@@ -12,6 +12,8 @@ fn main() {
     // rerun if we're on a different submodule commit
     cargo_build::rerun_if_changed("./.git/modules/vinting-web/HEAD");
 
+    // exits early to not touch anything npm related,
+    // good for testing
     if option_env!("NO_WEB").is_some() {
         return;
     }
@@ -29,6 +31,12 @@ fn main() {
 
     let build_out = rebuild || !fs::exists("./web/").unwrap_or(false);
     let install_deps = rebuild || !fs::exists("./vinting-web/node_modules/").unwrap_or(false);
+
+    // Don't run checks if not necessary, particularly useful for windows,
+    // where by default npm is not in your path if you install it through scoop or choco
+    if !build_out && !install_deps && !rebuild {
+        return;
+    }
 
     // check if npm is present in $PATH and is executable
     // spawning the process won't error if it's executable
