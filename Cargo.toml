@@ -21,7 +21,7 @@ redundant_pattern = "deny"
 cargo-build = "1.0.0"
 
 [workspace.dependencies]
-sea-orm = { version = "2.0.0-rc.30", features = [
+sea-orm = { version = "2.0.0-rc.35", features = [
   "runtime-tokio-rustls",
   "sqlx-sqlite",
   "macros",
