@@ -1,8 +1,15 @@
+use entity::user;
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct UserPutDto {
-    id: i32,
+    pub id: i32,
     #[serde(flatten)]
-    data: super::post::UserPostDto,
+    pub data: super::post::UserPostDto,
+}
+
+impl From<UserPutDto> for user::ActiveModelEx {
+    fn from(d: UserPutDto) -> Self {
+        user::ActiveModelEx::from(d.data).set_id(d.id)
+    }
 }

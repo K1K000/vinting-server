@@ -1,10 +1,12 @@
 use crate::service_trait::ServiceTrait;
 use entity::tag;
-use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
+use sea_orm::{
+    ColumnTrait, Condition, DatabaseConnection, DbConn, DbErr, EntityTrait, PrimaryKeyTrait,
+};
 
-pub struct TagService(DatabaseConnection);
+pub struct TagService<'a>(pub &'a DatabaseConnection);
 
-impl ServiceTrait for TagService {
+impl ServiceTrait for TagService<'_> {
     type Entity = tag::Entity;
 
     fn iter_filter<M>(m: M) -> bool
@@ -21,6 +23,27 @@ impl ServiceTrait for TagService {
     }
 
     fn get_db(&self) -> &DatabaseConnection {
-        &self.0
+        self.0
+    }
+
+    fn new_active_model_ex_from_id<U>(id: U) -> <Self::Entity as EntityTrait>::ActiveModelEx
+    where
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType>,
+    {
+        tag::ActiveModel::builder().set_id(id)
+    }
+
+    fn insert_active_model_ex(
+        am: <Self::Entity as EntityTrait>::ActiveModelEx,
+        db: &DbConn,
+    ) -> impl Future<Output = Result<<Self::Entity as EntityTrait>::ModelEx, DbErr>> + Send {
+        am.insert(db)
+    }
+
+    fn update_active_model_ex(
+        am: <Self::Entity as EntityTrait>::ActiveModelEx,
+        db: &DbConn,
+    ) -> impl Future<Output = Result<<Self::Entity as EntityTrait>::ModelEx, DbErr>> + Send {
+        am.update(db)
     }
 }

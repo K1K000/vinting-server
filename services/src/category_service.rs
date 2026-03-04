@@ -1,10 +1,12 @@
 use crate::service_trait::ServiceTrait;
 use entity::category;
-use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
+use sea_orm::{
+    ColumnTrait, Condition, DatabaseConnection, DbConn, DbErr, EntityTrait, PrimaryKeyTrait,
+};
 
-pub struct CategoryService(DatabaseConnection);
+pub struct CategoryService<'a>(pub &'a DatabaseConnection);
 
-impl ServiceTrait for CategoryService {
+impl ServiceTrait for CategoryService<'_> {
     type Entity = category::Entity;
 
     fn iter_filter<M>(m: M) -> bool
@@ -21,6 +23,27 @@ impl ServiceTrait for CategoryService {
     }
 
     fn get_db(&self) -> &DatabaseConnection {
-        &self.0
+        self.0
+    }
+
+    fn new_active_model_ex_from_id<U>(id: U) -> <Self::Entity as EntityTrait>::ActiveModelEx
+    where
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType>,
+    {
+        category::ActiveModel::builder().set_id(id)
+    }
+
+    fn insert_active_model_ex(
+        am: <Self::Entity as EntityTrait>::ActiveModelEx,
+        db: &DbConn,
+    ) -> impl Future<Output = Result<<Self::Entity as EntityTrait>::ModelEx, DbErr>> + Send {
+        am.insert(db)
+    }
+
+    fn update_active_model_ex(
+        am: <Self::Entity as EntityTrait>::ActiveModelEx,
+        db: &DbConn,
+    ) -> impl Future<Output = Result<<Self::Entity as EntityTrait>::ModelEx, DbErr>> + Send {
+        am.update(db)
     }
 }

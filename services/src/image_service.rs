@@ -1,10 +1,12 @@
 use crate::service_trait::ServiceTrait;
 use entity::image;
-use sea_orm::{ColumnTrait, Condition, DatabaseConnection};
+use sea_orm::{
+    ColumnTrait, Condition, DatabaseConnection, DbConn, DbErr, EntityTrait, PrimaryKeyTrait,
+};
 
-pub struct ImageService(DatabaseConnection);
+pub struct ImageService<'a>(pub &'a DatabaseConnection);
 
-impl ServiceTrait for ImageService {
+impl ServiceTrait for ImageService<'_> {
     type Entity = image::Entity;
 
     fn iter_filter<M>(m: M) -> bool
@@ -21,6 +23,27 @@ impl ServiceTrait for ImageService {
     }
 
     fn get_db(&self) -> &DatabaseConnection {
-        &self.0
+        self.0
+    }
+
+    fn new_active_model_ex_from_id<U>(id: U) -> <Self::Entity as EntityTrait>::ActiveModelEx
+    where
+        U: Into<<<Self::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType>,
+    {
+        image::ActiveModel::builder().set_id(id)
+    }
+
+    fn insert_active_model_ex(
+        am: <Self::Entity as EntityTrait>::ActiveModelEx,
+        db: &DbConn,
+    ) -> impl Future<Output = Result<<Self::Entity as EntityTrait>::ModelEx, DbErr>> + Send {
+        am.insert(db)
+    }
+
+    fn update_active_model_ex(
+        am: <Self::Entity as EntityTrait>::ActiveModelEx,
+        db: &DbConn,
+    ) -> impl Future<Output = Result<<Self::Entity as EntityTrait>::ModelEx, DbErr>> + Send {
+        am.update(db)
     }
 }

@@ -11,6 +11,7 @@ pub struct UserGetDto {
     pub modified_at: DateTime,
 
     pub name: String,
+    pub email: String,
 }
 
 from_models!(user, UserGetDto, m, {
@@ -19,5 +20,6 @@ from_models!(user, UserGetDto, m, {
         created_at: m.created_at,
         modified_at: m.modified_at,
         name: m.name,
+        email: m.email,
     }
 });
