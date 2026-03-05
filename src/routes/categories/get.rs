@@ -26,8 +26,8 @@ pub async fn all(db: &State<DbConn>) -> Result<Json<Vec<CategoryGetDto>>, Respon
         .get_all()
         .await?
         .into_iter()
-        .map(|val| val.into())
-        .collect::<Vec<CategoryGetDto>>();
+        .map(CategoryGetDto::from)
+        .collect::<Vec<_>>();
 
     Ok(Json(categories))
 }

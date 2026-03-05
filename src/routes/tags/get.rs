@@ -27,8 +27,8 @@ pub async fn all(db: &State<DbConn>) -> Result<Json<Vec<TagGetDto>>, Responder> 
         .get_all()
         .await?
         .into_iter()
-        .map(|val| val.into())
-        .collect::<Vec<TagGetDto>>();
+        .map(TagGetDto::from)
+        .collect::<Vec<_>>();
 
     Ok(Json(tags))
 }

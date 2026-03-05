@@ -16,6 +16,12 @@ pub async fn one(
     let service = TagService(db);
     let tag = data.into_inner();
 
+    if service.exists_by_name_all(&tag.name).await? {
+        return Err(Responder::bad_request(
+            "Tag with the same name already exists",
+        ));
+    }
+
     let model = service.insert(tag::ActiveModelEx::from(tag)).await?;
 
     Ok(Created::new(format!("{host}/api/tags/{}", model.id)).body(Json(model.into())))
